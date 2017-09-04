@@ -5,7 +5,7 @@
 #define CHAR_RANGE_MIN 33
 #define CHAR_RANGE_MAX 127
 #define REC_SIZE 120
-#define MAX_SECS 20.0
+#define MAX_SECS 120.0
 
 /*generates a psuedorandom 120 char record and returns a pointer to it.*/
 char *gen_rand_rec() {
