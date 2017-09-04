@@ -5,9 +5,9 @@
 #define CHAR_RANGE_MIN 33
 #define CHAR_RANGE_MAX 127
 #define REC_SIZE 120
-#define MAX_SECS 120.0
+#define MAX_SECS 20.0
 
-/*generates a psuedorandom 120 char record and returns a pointer to it*/
+/*generates a psuedorandom 120 char record and returns a pointer to it.*/
 char *gen_rand_rec() {
 	char *p1 = malloc(REC_SIZE);
 	char *p2 = p1;
@@ -22,40 +22,23 @@ char *gen_rand_rec() {
  *rereads the record comparing it to the string in mem. char by char.
  *returns 1 if the string saved in mem. is the same as record read from file.*/
 int cmp_rec(FILE *fp) {
-	int rand_step = (rand() % 10) * REC_SIZE; /*gives the num. of characters that come before a certain line in the file.*/
-	int char_pos; /*the char position in the file.*/
-	int count = 0; /*count of chars traversed over.*/
-	char *cmp_rec = malloc(REC_SIZE); /*120 char string saved to mem.*/		
-	char *rec = cmp_rec; 
-	int recs_equal = 1; /*truth value for two comparison of records.*/
+	char *cmp_rec = malloc(REC_SIZE);
+	char *rec = cmp_rec;
+	int rand_offset = (rand() % 10) * (REC_SIZE + 1); 
+	int recs_equal = 1;
+	int curr_char;
 	
-	/*get to the line of the text file of the record to be read from ignoring newlines.*/
-	while (count <= rand_step) {
-		char_pos = getc(fp);
-		if (!(char_pos == '\n')) {
-			count++;
-		}
-	}
+	fseek(fp, rand_offset, SEEK_SET); 
 	
-	/*read record into string.*/
-	while(char_pos = getc(fp) != '\n') {
-		*rec = (char)char_pos;
+	while (curr_char = getc(fp) != '\n') {
+		*rec = (char)curr_char;
 		rec++;
 	}
 	
-	rewind(fp);
-	count = 0;
+	fseek(fp, rand_offset, SEEK_SET);
 	
-	/*get back to line of record to be read from.*/
-	while (count <= rand_step) {
-		char_pos = getc(fp);
-		if(!(char_pos == '\n')) 
-			count++;
-	}
-	
-	/*compare string in mem. and record being read from file.*/
-	while (char_pos = getc(fp) != '\n' && recs_equal) {
-		if (!(*cmp_rec == char_pos)) {
+	while  (curr_char = getc(fp) != '\n') {
+		if (*cmp_rec != curr_char) {
 			recs_equal = 0;
 		}
 	}
@@ -65,15 +48,16 @@ int cmp_rec(FILE *fp) {
 	return recs_equal;
 }
 
+/*opens a new text file, and continuously writes records to it, reads records from it, and compares them.
+ *operates for approx. two minutes before closing and removing the file.*/
 int main(void) {
 	FILE *fp = fopen("test.txt", "w+"); 
 	char *rec; /*record to write to file*/
 	time_t loop_start = time(NULL);
 	time_t loop_end;
-	int test;
 	int in_time_lim = 1; 
 	
-	/*loop runs for two minutes before exiting*/
+	/*loop runs for approx. two minutes before exiting*/
 	while (in_time_lim) {
 		for (int i = 0; i < 10; i++) {
 			rec = gen_rand_rec();
@@ -84,7 +68,7 @@ int main(void) {
 		
 		rewind(fp);
 		
-		int test = cmp_rec(fp);
+		cmp_rec(fp);
 		
 		loop_end = time(NULL);
 		if (difftime(loop_end, loop_start) >= MAX_SECS) {
