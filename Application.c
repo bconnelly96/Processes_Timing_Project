@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/time.h>
 
 #define CHAR_RANGE_MIN 33
 #define CHAR_RANGE_MAX 127
 #define REC_SIZE 120
-#define MAX_SECS 120.0
+#define MAX_SECS 10.0
 
 /*generates a psuedorandom 120 char record and returns a pointer to it.*/
 char *gen_rand_rec() {
@@ -57,7 +58,15 @@ int main(void) {
 	time_t loop_end;
 	int in_time_lim = 1; 
 	
+	/*for use in getting startup time and writing to file*/
+	struct timeval process_start;
+	FILE *ps_fp = fopen("process_start.txt", "w+");
+	gettimeofday(&process_start, NULL);
+	fprintf(ps_fp, "%d\n", process_start.tv_usec);
+	fclose(ps_fp);
+	
 	/*loop runs for approx. two minutes before exiting*/
+	srand(time(NULL));
 	while (in_time_lim) {
 		for (int i = 0; i < 10; i++) {
 			rec = gen_rand_rec();
