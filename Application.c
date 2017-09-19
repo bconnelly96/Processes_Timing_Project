@@ -6,9 +6,11 @@
 #define CHAR_RANGE_MIN 33
 #define CHAR_RANGE_MAX 127
 #define REC_SIZE 120
-#define MAX_SECS 10.0
+#define MAX_SECS 120.0
 
-/*generates a psuedorandom 120 char record and returns a pointer to it.*/
+/*input: none
+ *function: generates a psuedo-random 120 char record
+ *output: returns a pointer to the record generated*/
 char *gen_rand_rec() {
 	char *p1 = malloc(REC_SIZE);
 	char *p2 = p1;
@@ -19,9 +21,11 @@ char *gen_rand_rec() {
 	return p1;
 }
 
-/*reads a random record from file into a string.
- *rereads the record comparing it to the string in mem. char by char.
- *returns 1 if the string saved in mem. is the same as record read from file.*/
+/*input: reads a random record from file into a string and rereads the record 
+ *function: comparing the record in the file to 
+ *the string in mem. char by char.
+ *output: returns 1 if the string saved in mem. is the same as record read from file.
+ *otherwise, it returns 0.*/
 int cmp_rec(FILE *fp) {
 	char *cmp_rec = malloc(REC_SIZE);
 	char *rec = cmp_rec;
@@ -37,11 +41,13 @@ int cmp_rec(FILE *fp) {
 	}
 	
 	fseek(fp, rand_offset, SEEK_SET);
+	rec = cmp_rec;
 	
 	while  (curr_char = getc(fp) != '\n') {
-		if (*cmp_rec != curr_char) {
+		if (*rec != curr_char) {
 			recs_equal = 0;
 		}
+		rec++;
 	}
 	
 	free(cmp_rec);
@@ -49,8 +55,13 @@ int cmp_rec(FILE *fp) {
 	return recs_equal;
 }
 
-/*opens a new text file, and continuously writes records to it, reads records from it, and compares them.
- *operates for approx. two minutes before closing and removing the file.*/
+/*input: none.
+ *function: records the startup time of the program.
+ *opens a new text file, and continuously writes records to it, 
+ *reads records from it, and compares them.
+ *operates for approx. two minutes 
+ *before closing and removing the file.
+ *output: writes startup time to file*/
 int main(void) {
 	FILE *fp = fopen("test.txt", "w+"); 
 	char *rec; /*record to write to file*/
@@ -60,7 +71,7 @@ int main(void) {
 	
 	/*for use in getting startup time and writing to file*/
 	struct timeval process_start;
-	FILE *ps_fp = fopen("process_start.txt", "w+");
+	FILE *ps_fp = fopen("timer_process_start.txt", "a");
 	gettimeofday(&process_start, NULL);
 	fprintf(ps_fp, "%d\n", process_start.tv_usec);
 	fclose(ps_fp);
