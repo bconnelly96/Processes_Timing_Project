@@ -5,4 +5,4 @@ Steps for usage:
 (2) compile Timer.c with gcc -std=c99 -o timer Timer.c
 (3) compile Timer2.c with gcc -std=c99 -o timer2 Timer2.c
 
-All 3 source files are in the same directory. 
+All 3 source files must be in the same directory. 
