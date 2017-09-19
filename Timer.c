@@ -4,11 +4,16 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+/*input: reads a file
+ *in child: launches the process
+ *in parent: waits for the child to finish, reads
+ *process start up time from file, finds difference in times.
+ *output: writes to a file.*/
 int main(void) {
 	struct timeval process_call;
 	int process_start = 0;
 	pid_t pid;
-	FILE *read_start;
+	FILE *read_start, *write_result; 
 	int time_diff = 0;
 	
 	pid = fork();
@@ -16,12 +21,15 @@ int main(void) {
 	if (pid > 0) {
 		waitpid(pid, NULL, 0);
 		
-		read_start = fopen("process_start.txt", "r");
+		read_start = fopen("timer_process_start.txt", "r");
 		fscanf(read_start, "%d", &process_start);
 		time_diff = process_start - process_call.tv_usec;
-		printf("\nThe process launched in %d microseconds\n", time_diff);
-		
 		fclose(read_start);
+		remove("timer_process_start.txt");
+		
+		write_result = fopen("timer_results.txt", "a");
+		fprintf(write_result, "%d\n", time_diff);
+		fclose(write_result);
 	}
 	else if (pid == 0) {
 		if (execlp("./application", "application", NULL) == -1) {
@@ -31,17 +39,5 @@ int main(void) {
 	else {
 		printf("Process Startup Error has Occured\n");
 	}
-	
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
